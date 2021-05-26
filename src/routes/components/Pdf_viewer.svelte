@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let document;
+	export let document = '';
 
 	let pdfjsLib;
 	let context, canvasRef;
 
+	let m = { x: 0, y: 0 };
+	let key = 'waiting...',
+		keyCode = '';
 	let innerWidth, innerHeight, outerWidth, outerHeight;
 
 	const data = atob(
@@ -23,24 +26,70 @@
 			'MDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9v' +
 			'dCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G'
 	);
+
+	const handleKeydown = (event) => {
+		key = event.key;
+		keyCode = event.keyCode;
+	};
+
+	const handleMouseMove = (event) => {
+		m.x = event.clientX;
+		m.y = event.clientY;
+	};
+
+	onMount(() => {
+		pdfjsLib = window['pdfjs-dist/build/pdf'];
+		pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+		pdfjsLib
+			.getDocument({ data })
+			.promise.then((doc) => doc.getPage(1))
+			.then((page) => {
+				const scale = 1.5;
+				const viewport = page.getViewport({ scale });
+
+				// Prepare canvas using PDF page dimensions
+				var context = canvasRef.getContext('2d');
+				canvasRef.height = viewport.height;
+				canvasRef.width = viewport.width;
+
+				// Render PDF page into canvas context
+				var renderContext = {
+					canvasContext: context,
+					viewport: viewport
+				};
+
+				page.render(renderContext);
+			});
+	});
 </script>
 
 <svelte:head>
 	<script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
 </svelte:head>
 
-<svelte:window bind:innerHeight bind:outerHeight bind:innerWidth bind:outerWidth />
+<svelte:window
+	bind:innerHeight
+	bind:outerHeight
+	bind:innerWidth
+	bind:outerWidth
+	on:keydown={handleKeydown}
+/>
 
 <h1>{document}</h1>
 
-<div class="fixed">
-	<strong> Inner height: </strong>{innerHeight}, <br />
-	<strong> Inner width: </strong>{innerWidth}, <br />
-	<strong> Outer height: </strong>{outerHeight}, <br />
-	<strong> Outer width: </strong>{outerWidth}, <br />
-</div>
+<canvas bind:this={canvasRef} on:mousemove={(e) => (m = { x: e.clientX, y: e.clientY })} />
 
-<canvas bind:this={canvasRef} />
+<section>
+	<div class="fixed">
+		<strong> Mouse x y: </strong>{m.x}, {m.y}<br />
+		<strong> Key down: </strong>{key}, {keyCode}<br />
+		<strong> Inner height: </strong>{innerHeight} <br />
+		<strong> Inner width: </strong>{innerWidth} <br />
+		<strong> Outer height: </strong>{outerHeight} <br />
+		<strong> Outer width: </strong>{outerWidth} <br />
+	</div>
+</section>
 
 <style>
 	div.fixed {
