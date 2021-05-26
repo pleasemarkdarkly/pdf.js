@@ -42,7 +42,7 @@
 		pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
 
 		pdfjsLib
-			.getDocument({ data })
+			.getDocument(document)
 			.promise.then((doc) => doc.getPage(1))
 			.then((page) => {
 				const scale = 1.5;
