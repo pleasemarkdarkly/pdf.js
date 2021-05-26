@@ -4,7 +4,8 @@
 	export let document = '';
 
 	let pdfjsLib;
-	let canvasRef;
+	let canvasRef,
+		errorMessage = '';
 
 	let m = { x: 0, y: 0 };
 	let key = 'waiting...',
@@ -32,9 +33,9 @@
 		keyCode = event.keyCode;
 	};
 
-	const handleMouseMove = (event) => {
-		m.x = event.clientX;
-		m.y = event.clientY;
+	const debugMessage = (msg: string) => {
+		if (errorMessage.length > 250) errorMessage = '';
+		errorMessage += msg;
 	};
 
 	onMount(() => {
@@ -57,7 +58,10 @@
 					viewport: viewport
 				};
 
-				page.render(renderContext);
+				const renderTask = page.render(renderContext);
+				renderTask.promise.then(() => {
+					debugMessage('renderTask completed');
+				});
 			});
 	});
 </script>
@@ -85,15 +89,17 @@
 		<strong> Inner height: </strong>{innerHeight} <br />
 		<strong> Inner width: </strong>{innerWidth} <br />
 		<strong> Outer height: </strong>{outerHeight} <br />
-		<strong> Outer width: </strong>{outerWidth} <br />
+		<strong> Outer width: </strong>{outerWidth} <br /><br />
+		<strong> Debug Messages: </strong>{errorMessage}<br />
 	</div>
 </section>
 
 <style>
 	div.fixed {
+		padding: 1em;
 		position: fixed;
 		width: 50%;
-		bottom: 40px;
-		border: 3px solid #e9252f;
+		bottom: 25px;
+		border: 2px solid #e9252f;
 	}
 </style>
