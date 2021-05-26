@@ -6,7 +6,8 @@
     "build": "svelte-kit build",
     "preview": "svelte-kit preview",
     "lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
-    "format": "prettier --write --plugin-search-dir=. ."
+    "format": "prettier --write --plugin-search-dir=. .",
+     "git": "git add . && echo \"Enter your commit message =>\" && read && git commit -m \"$REPLY :octocat: :four_leaf_clover: :pray:\" && git push origin development-working"
   },
   "devDependencies": {
     "@sveltejs/kit": "next",

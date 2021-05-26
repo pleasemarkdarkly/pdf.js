@@ -4,7 +4,7 @@
 	export let document = '';
 
 	let pdfjsLib;
-	let context, canvasRef;
+	let canvasRef;
 
 	let m = { x: 0, y: 0 };
 	let key = 'waiting...',
@@ -48,13 +48,11 @@
 				const scale = 1.5;
 				const viewport = page.getViewport({ scale });
 
-				// Prepare canvas using PDF page dimensions
-				var context = canvasRef.getContext('2d');
+				const context = canvasRef.getContext('2d');
 				canvasRef.height = viewport.height;
 				canvasRef.width = viewport.width;
 
-				// Render PDF page into canvas context
-				var renderContext = {
+				const renderContext = {
 					canvasContext: context,
 					viewport: viewport
 				};
